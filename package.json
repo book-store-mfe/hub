@@ -2,13 +2,18 @@
   "name": "bookstore-app-hub",
   "private": true,
   "scripts": {
-    "store": "cd store && npm install && npm start",
-    "catalog": "cd catalog && npm install && npm start",
-    "account": "cd account && npm install && npm start",
-    "review": "cd review && npm install && npm start",
-    "start:all": "concurrently \"npm run store\" \"npm run catalog\" \"npm run account\" \"npm run review\""
+    "install:store": "cd store && npm install",
+    "install:catalog": "cd catalog && npm install",
+    "install:account": "cd account && npm install",
+    "install:review": "cd review && npm install",
+    "start:store": "cd store && npm start",
+    "start:catalog": "cd catalog && npm start",
+    "start:account": "cd account && npm start",
+    "start:review": "cd review && npm start",
+    "install:all": "npx concurrently \"npm run install:store\" \"npm run install:catalog\" \"npm run install:account\" \"npm run install:review\"",
+    "start:all": "npx concurrently \"npm run start:store\" \"npm run start:catalog\" \"npm run start:account\" \"npm run start:review\""
   },
   "devDependencies": {
-    "concurrently": "^8.0.0"
+    "concurrently": "^8.2.2"
   }
 }
