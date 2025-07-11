@@ -12,6 +12,10 @@ Este repositório centraliza os microfrontends da Book Store via submodules Git.
 
 ---
 
+## preview
+
+![preview](./.assets/preview.png)
+
 ## 🗺️ Arquitetura Geral
 
 ```mermaid
