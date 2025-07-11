@@ -1,0 +1,14 @@
+{
+  "name": "bookstore-app-hub",
+  "private": true,
+  "scripts": {
+    "store": "cd store && npm install && npm start",
+    "catalog": "cd catalog && npm install && npm start",
+    "account": "cd account && npm install && npm start",
+    "review": "cd review && npm install && npm start",
+    "start:all": "concurrently \"npm run store\" \"npm run catalog\" \"npm run account\" \"npm run review\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
