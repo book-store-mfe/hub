@@ -1,12 +1,12 @@
 [submodule "store"]
 	path = store
-	url = https://github.com/book-store-mfe/store.git
+	url = git@github.com:book-store-mfe/store.git
 [submodule "catalog"]
 	path = catalog
-	url = https://github.com/book-store-mfe/catalog.git
+	url = git@github.com:book-store-mfe/catalog.git
 [submodule "account"]
 	path = account
-	url = https://github.com/book-store-mfe/account.git
+	url = git@github.com:book-store-mfe/account.git
 [submodule "review"]
 	path = review
-	url = https://github.com/book-store-mfe/review.git
+	url = git@github.com:book-store-mfe/review.git
