@@ -33,23 +33,25 @@ git submodule update --remote --merge
 
 ---
 
-## ▶️ Iniciando um módulo específico
+## Iniciando um módulo específico
 
 Por exemplo, para rodar o **store**:
 
 ```sh
-npm run store
+cd store
+npm start
 ```
 
 Para o **catalog**:
 
 ```sh
-npm run catalog
+cd catalog
+npm start
 ```
 
 ---
 
-## ▶️ Iniciando TODOS os módulos juntos
+## Iniciando TODOS os módulos juntos
 
 ```sh
 npm run start:all
@@ -58,4 +60,3 @@ npm run start:all
 Isso inicia todos os apps em paralelo.
 
 ---
-
