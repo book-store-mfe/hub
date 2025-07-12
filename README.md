@@ -8,7 +8,7 @@ Este repositório centraliza os microfrontends da Book Store via submodules Git.
 * [catalog](https://github.com/book-store-mfe/catalog): Catálogo de livros
 * [account](https://github.com/book-store-mfe/account): Área do usuário (login/profile)
 * [review](https://github.com/book-store-mfe/review): Reviews de livros
-* shared-lib: Biblioteca para estado do usuário
+* [shared-lib](https://github.com/book-store-mfe/shared-lib): Biblioteca compartilhada
 
 ---
 
@@ -54,11 +54,16 @@ Cada microfrontend está configurado para fazer deploy de forma **independente**
 
 ```mermaid
 flowchart TD
-    subgraph Store [store repo]
-      StoreMain[(main branch)]
-      StoreAction[[GitHub Action]]
-      StoreGhPages[(gh-pages branch)]
-      StorePage[/github.io/store/]
+    subgraph SharedLib [shared-lib repo]
+      SharedLibMain[(main branch)]
+      SharedLibAction[[GitHub Action]]
+      NpmRegistry[(npm registry)]
+    end
+    subgraph Review [review repo]
+      ReviewMain[(main branch)]
+      ReviewAction[[GitHub Action]]
+      ReviewGhPages[(gh-pages branch)]
+      ReviewPage[/github.io/review/]
     end
     subgraph Account [account repo]
       AccountMain[(main branch)]
@@ -72,13 +77,14 @@ flowchart TD
       CatalogGhPages[(gh-pages branch)]
       CatalogPage[/github.io/catalog/]
     end
-    subgraph Review [review repo]
-      ReviewMain[(main branch)]
-      ReviewAction[[GitHub Action]]
-      ReviewGhPages[(gh-pages branch)]
-      ReviewPage[/github.io/review/]
+    subgraph Store [store repo]
+      StoreMain[(main branch)]
+      StoreAction[[GitHub Action]]
+      StoreGhPages[(gh-pages branch)]
+      StorePage[/github.io/store/]
     end
 
+    SharedLibMain --> SharedLibAction --> NpmRegistry
     StoreMain --> StoreAction --> StoreGhPages --> StorePage
     AccountMain --> AccountAction --> AccountGhPages --> AccountPage
     CatalogMain --> CatalogAction --> CatalogGhPages --> CatalogPage
@@ -86,6 +92,7 @@ flowchart TD
 ```
 
 ---
+
 
 ## 🧩 Componentes e Fluxo
 
@@ -228,18 +235,11 @@ git submodule update --remote --merge
 
 ## Iniciando um módulo específico
 
-Por exemplo, para rodar o **store**:
+Por exemplo, para rodar o **catalog**:
 
 ```sh
-cd store
-npm start
-```
-
-Para o **catalog**:
-
-```sh
-cd catalog
-npm start
+npm install:catalog
+npm start:catalog
 ```
 
 ---
@@ -247,9 +247,71 @@ npm start
 ## Iniciando TODOS os módulos juntos
 
 ```sh
+npm run install:all
 npm run start:all
 ```
 
 Isso inicia todos os apps em paralelo.
 
 ---
+
+## 🔗 Usando `shared-lib` localmente com `npm link`
+
+Durante o desenvolvimento, é possível consumir o pacote `shared-lib` **localmente**, sem precisar publicar no NPM, usando o comando `npm link`.
+
+### Passo a passo para integração local
+
+#### 1. Build do shared-lib
+
+Entre na pasta do submodule `shared-lib`:
+
+```sh
+cd shared-lib
+npm install
+npm run build
+```
+
+#### 2. Link global do shared-lib
+
+```sh
+cd dist/shared-lib
+npm link
+```
+
+Isso vai registrar o pacote localmente na sua máquina.
+
+#### 3. Link nos MFEs (store, catalog, account, review)
+
+Para cada microfrontend que consome o shared-lib, rode:
+
+```sh
+cd ../store      # (ou catalog, account, review)
+npm link @bookstore-app/shared-lib
+```
+
+Repita para todos os MFEs que vão consumir a shared-lib.
+
+#### 4. Rodando em dev
+
+* Ao rodar `npm start` em cada MFE, o código da `shared-lib` será importado diretamente do seu diretório local.
+* Sempre que fizer alterações no código da lib, execute `npm run build` novamente dentro de `shared-lib` para propagar as mudanças.
+* Os MFEs verão a versão mais recente do código buildado automaticamente (pode ser necessário reiniciar a aplicação em alguns casos).
+
+#### 5. Removendo o link (opcional)
+
+Se quiser voltar a usar a versão publicada no NPM:
+
+```sh
+cd store
+npm unlink @bookstore-app/shared-lib
+```
+
+Repita para cada microfrontend que usava o link.
+
+---
+
+### 📑 Dicas
+
+* O `npm link` cria symlinks. Pode ter conflitos se dependências peer (ex: React, Angular) não forem iguais. Se tiver erros estranhos, limpe o `node_modules` e reinstale tudo.
+* Lembre-se de sempre rodar o build da lib após alterar o código-fonte.
+* Esse fluxo é excelente para acelerar o desenvolvimento multi-repo sem precisar publicar releases no npm a cada alteração.

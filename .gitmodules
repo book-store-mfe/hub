@@ -10,3 +10,9 @@
 [submodule "review"]
 	path = review
 	url = git@github.com:book-store-mfe/review.git
+[submodule "shared-lib"]
+	path = shared-lib
+	url = git@github.com:book-store-mfe/shared-lib.git
+[submodule "reports"]
+	path = reports
+	url = git@github.com:book-store-mfe/reports.git

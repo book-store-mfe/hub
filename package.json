@@ -2,18 +2,20 @@
   "name": "bookstore-app-hub",
   "private": true,
   "scripts": {
+    "start": "npm run start:all",
     "install:store": "cd store && npm install",
     "install:catalog": "cd catalog && npm install",
     "install:account": "cd account && npm install",
     "install:review": "cd review && npm install",
+    "install:shared-lib": "cd shared-lib && npm install",
     "start:store": "cd store && npm start",
     "start:catalog": "cd catalog && npm start",
     "start:account": "cd account && npm start",
     "start:review": "cd review && npm start",
-    "install:all": "npx concurrently \"npm run install:store\" \"npm run install:catalog\" \"npm run install:account\" \"npm run install:review\"",
-    "start:all": "npx concurrently \"npm run start:store\" \"npm run start:catalog\" \"npm run start:account\" \"npm run start:review\""
+    "install:all": "npx concurrently -n STORE,CATALOG,ACCOUNT,REVIEW,SHAREDLIB -c blue,magenta,green,cyan,gray \"npm run install:store\" \"npm run install:catalog\" \"npm run install:account\" \"npm run install:review\" \"npm run install:shared-lib\"",
+    "start:all": "npx concurrently -n STORE,CATALOG,ACCOUNT,REVIEW -c blue,magenta,green,cyan \"npm run start:store\" \"npm run start:catalog\" \"npm run start:account\" \"npm run start:review\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "semver": "^7.7.2"
   }
 }
