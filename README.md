@@ -8,7 +8,7 @@ Este repositório centraliza os microfrontends da Book Store via submodules Git.
 * [catalog](https://github.com/book-store-mfe/catalog): Catálogo de livros
 * [account](https://github.com/book-store-mfe/account): Área do usuário (login/profile)
 * [review](https://github.com/book-store-mfe/review): Reviews de livros
-* shared-lib: Biblioteca para estado do usuário
+* [shared-lib](https://github.com/book-store-mfe/shared-lib): Biblioteca compartilhada
 
 ---
 
@@ -54,11 +54,16 @@ Cada microfrontend está configurado para fazer deploy de forma **independente**
 
 ```mermaid
 flowchart TD
-    subgraph Store [store repo]
-      StoreMain[(main branch)]
-      StoreAction[[GitHub Action]]
-      StoreGhPages[(gh-pages branch)]
-      StorePage[/github.io/store/]
+    subgraph SharedLib [shared-lib repo]
+      SharedLibMain[(main branch)]
+      SharedLibAction[[GitHub Action]]
+      NpmRegistry[(npm registry)]
+    end
+    subgraph Review [review repo]
+      ReviewMain[(main branch)]
+      ReviewAction[[GitHub Action]]
+      ReviewGhPages[(gh-pages branch)]
+      ReviewPage[/github.io/review/]
     end
     subgraph Account [account repo]
       AccountMain[(main branch)]
@@ -72,13 +77,14 @@ flowchart TD
       CatalogGhPages[(gh-pages branch)]
       CatalogPage[/github.io/catalog/]
     end
-    subgraph Review [review repo]
-      ReviewMain[(main branch)]
-      ReviewAction[[GitHub Action]]
-      ReviewGhPages[(gh-pages branch)]
-      ReviewPage[/github.io/review/]
+    subgraph Store [store repo]
+      StoreMain[(main branch)]
+      StoreAction[[GitHub Action]]
+      StoreGhPages[(gh-pages branch)]
+      StorePage[/github.io/store/]
     end
 
+    SharedLibMain --> SharedLibAction --> NpmRegistry
     StoreMain --> StoreAction --> StoreGhPages --> StorePage
     AccountMain --> AccountAction --> AccountGhPages --> AccountPage
     CatalogMain --> CatalogAction --> CatalogGhPages --> CatalogPage
@@ -86,6 +92,7 @@ flowchart TD
 ```
 
 ---
+
 
 ## 🧩 Componentes e Fluxo
 

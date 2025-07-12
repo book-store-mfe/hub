@@ -2,6 +2,7 @@
   "name": "bookstore-app-hub",
   "private": true,
   "scripts": {
+    "start": "npm run start:all",
     "install:store": "cd store && npm install",
     "install:catalog": "cd catalog && npm install",
     "install:account": "cd account && npm install",
