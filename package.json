@@ -14,8 +14,5 @@
     "start:review": "cd review && npm start",
     "install:all": "npx concurrently -n STORE,CATALOG,ACCOUNT,REVIEW,SHAREDLIB -c blue,magenta,green,cyan,gray \"npm run install:store\" \"npm run install:catalog\" \"npm run install:account\" \"npm run install:review\" \"npm run install:shared-lib\"",
     "start:all": "npx concurrently -n STORE,CATALOG,ACCOUNT,REVIEW -c blue,magenta,green,cyan \"npm run start:store\" \"npm run start:catalog\" \"npm run start:account\" \"npm run start:review\""
-  },
-  "devDependencies": {
-    "semver": "^7.7.2"
   }
 }

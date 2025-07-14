@@ -1,14 +1,33 @@
 # Book Store MFE - Hub
 
-Este repositório centraliza os microfrontends da Book Store via submodules Git.
+---
 
-## 📦 Módulos
+## 📖 Índice
 
-* [store](https://github.com/book-store-mfe/store): Host (Shell da aplicação)
-* [catalog](https://github.com/book-store-mfe/catalog): Catálogo de livros
-* [account](https://github.com/book-store-mfe/account): Área do usuário (login/profile)
-* [review](https://github.com/book-store-mfe/review): Reviews de livros
-* [shared-lib](https://github.com/book-store-mfe/shared-lib): Biblioteca compartilhada
+* [Visão Geral](#visão-geral)
+* [Módulos (MFEs)](#módulos-mfes)
+* [Arquitetura e Fluxos](#arquitetura-e-fluxos)
+
+  * [Composição via Submodules](#composição-via-submodules)
+  * [Interação entre MFEs e Shared Lib](#interação-entre-mfes-e-shared-lib)
+  * [Fluxo Completo: Deploy + Reports](#fluxo-completo-deploy--reports)
+  * [Fluxo automático do Reports](#fluxo-automático-do-reports)
+* [Deploy dos Microfrontends](#deploy-dos-microfrontends)
+* [Automação de Reports](#automação-de-reports)
+
+  * [Relatórios Gerados](#relatórios-gerados)
+  * [Fluxo automático de atualização de reports](#fluxo-automático-de-atualização-de-reports)
+* [Guia de Desenvolvimento Local](#guia-de-desenvolvimento-local)
+* [npm link da Shared Lib](#npm-link-da-shared-lib)
+
+---
+
+## Visão Geral
+
+Este repositório é o **ponto centralizador** dos microfrontends da Book Store, utilizando [Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) para orquestrar todos os MFEs e a shared-lib.
+* **Esse repositório não expõe nenhuma aplicação diretamente**, serve apenas como hub de orquestração, referência e documentação.
+* O fluxo automatizado garante que sempre que um MFE mudar, os relatórios globais e testes de integração fiquem atualizados.
+* O uso de submodules mantém cada app independente, mas permite integração e testes globais reais.
 
 ---
 
@@ -16,200 +35,125 @@ Este repositório centraliza os microfrontends da Book Store via submodules Git.
 
 ![preview](./.assets/preview.png)
 
-## 🗺️ Arquitetura Geral
+---
+
+## Módulos (MFEs)
+
+| Projeto                  | Função                           |
+| ------------------------ | -------------------------------- |
+| [store][store]           | Host Shell (aplicação principal) |
+| [catalog][catalog]       | Catálogo de livros               |
+| [account][account]       | Área do usuário                  |
+| [review][review]         | Reviews de livros                |
+| [shared-lib][shared-lib] | Biblioteca compartilhada         |
+| [reports][reports]       | Reports automáticos (Smoke + Dependencies)   |
+
+[store]: https://github.com/book-store-mfe/store
+[catalog]: https://github.com/book-store-mfe/catalog
+[account]: https://github.com/book-store-mfe/account
+[review]: https://github.com/book-store-mfe/review
+[shared-lib]: https://github.com/book-store-mfe/shared-lib
+[reports]: https://github.com/book-store-mfe/reports
+
+---
+
+### Interação entre MFEs e Shared Lib
 
 ```mermaid
 flowchart TD
-    subgraph Hub ["Hub"]
-        StoreMFE["Store<br/>(store)"]
-        CatalogMFE["Catalog<br/>(catalog)"]
-        AccountMFE["Account<br/>(account)"]
-        ReviewMFE["Review<br/>(review)"]
-    end
+  Store((store))
+  Catalog((catalog))
+  Account((account))
+  Review((review))
+  SharedLib[(shared-lib)]
 
-    SharedLib["SharedLib"]
-
-
-    StoreMFE -- "Load routes" --> CatalogMFE
-    StoreMFE -- "Load routes" --> AccountMFE
-
-    StoreMFE -- "import" --> SharedLib
-    AccountMFE -- "import" --> SharedLib
-    ReviewMFE -- "import" --> SharedLib
-    CatalogMFE -- "load dialog component" --> ReviewMFE
+  Store --"import"--> SharedLib
+  Account --"import"--> SharedLib
+  Review --"import"--> SharedLib
+  Store --"lazy load remote"--> Catalog
+  Store --"lazy load remote"--> Account
+  Catalog --"lazy load remote"--> Review
 ```
 
 ---
 
-## 🚀 Deploy dos Microfrontends via GitHub Actions
-
-Cada microfrontend está configurado para fazer deploy de forma **independente** utilizando GitHub Actions e o GitHub Pages.
-
-* **Cada projeto (store, account, catalog, review)** possui um workflow no `.github/workflows/` que escuta alterações na branch `main` e publica automaticamente o build da aplicação no GitHub Pages.
-* O deploy é feito no branch `gh-pages` de cada repositório.
-
----
-
-### Fluxo de deploy
-
-```mermaid
-flowchart TD
-    subgraph SharedLib [shared-lib repo]
-      SharedLibMain[(main branch)]
-      SharedLibAction[[GitHub Action]]
-      NpmRegistry[(npm registry)]
-    end
-    subgraph Review [review repo]
-      ReviewMain[(main branch)]
-      ReviewAction[[GitHub Action]]
-      ReviewGhPages[(gh-pages branch)]
-      ReviewPage[/github.io/review/]
-    end
-    subgraph Account [account repo]
-      AccountMain[(main branch)]
-      AccountAction[[GitHub Action]]
-      AccountGhPages[(gh-pages branch)]
-      AccountPage[/github.io/account/]
-    end
-    subgraph Catalog [catalog repo]
-      CatalogMain[(main branch)]
-      CatalogAction[[GitHub Action]]
-      CatalogGhPages[(gh-pages branch)]
-      CatalogPage[/github.io/catalog/]
-    end
-    subgraph Store [store repo]
-      StoreMain[(main branch)]
-      StoreAction[[GitHub Action]]
-      StoreGhPages[(gh-pages branch)]
-      StorePage[/github.io/store/]
-    end
-
-    SharedLibMain --> SharedLibAction --> NpmRegistry
-    StoreMain --> StoreAction --> StoreGhPages --> StorePage
-    AccountMain --> AccountAction --> AccountGhPages --> AccountPage
-    CatalogMain --> CatalogAction --> CatalogGhPages --> CatalogPage
-    ReviewMain --> ReviewAction --> ReviewGhPages --> ReviewPage
-```
-
----
-
-
-## 🧩 Componentes e Fluxo
-
-### 📁 Hub
-
-* Repositório facilitador, **não expõe app**.
-* Tem cada app como submodule (facilita setup e dev local).
-
----
-
-### 🏠 **Store (Host)**
-
-* App shell (host do Module Federation).
-* Header com botões de navegação.
-* Importa `ProfileService` de uma lib npm compartilhada (`shared-lib`).
-
-#### Header:
-
-* **Botão Account:** Navega para rota da MFE Account (lazy load remoto), carrega `AccountForm`.
-* **Botão Catalog:** Navega para rota da MFE Catalog (lazy load remoto), carrega `BookList`.
-* **Nome do usuário:** Mostra estado do usuário usando o `ProfileService` compartilhado.
-
----
-
-### 👤 **Account**
-
-* Carregada via rota pelo Store.
-* Exibe e edita o nome/email (usa `ProfileService`).
-* Ao editar, sincroniza o estado com todas MFEs (host + remotes).
-
----
-
-### 📚 **Catalog**
-
-* Carregada via rota pelo Store.
-* Componente `BookList`: lista de livros.
-* Clicar em um livro exibe **dialog para reviews**.
-
----
-
-### ⭐ **Review**
-
-* Carregada sob demanda pelo Catalog, via Module Federation.
-* Exporta uma Dialog para exibir o review do livro.
-* Usa o estado do usuário compartilhado via `ProfileService`.
-
----
-
-### 🧬 **State Diagram**
-
-```mermaid
-stateDiagram-v2
-    [*] --> Store_Host
-
-    state Review_MFE {
-      [*] --> ReviewDialog
-      ReviewDialog --> ProfileService : lê nome/email
-    }
-
-    state Account_MFE {
-      [*] --> AccountForm
-      AccountForm --> ProfileService : edita nome/email
-    }
-
-    state Catalog_MFE {
-      [*] --> BookList
-      %%BookList --> Review_MFE : ao clicar em review
-      BookList --> Btn_Review
-      Btn_Review --> Review_MFE
-    }
-
-    state Store_Host {
-      [*] --> Header
-      Header --> ProfileName
-      Header --> Btn_Account
-      Header --> Btn_Catalog
-      ProfileName --> ProfileService : lê nome
-
-      Btn_Account --> Account_MFE
-      Btn_Catalog --> Catalog_MFE
-    }
-
-
-    ProfileService --> ProfileName : propaga alteração
-    ProfileService --> ReviewDialog : propaga alteração
-```
-
-### 🔄 **Sequence Diagram**
+### Fluxo Completo: Deploy + Reports
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Store
-    participant Account
-    participant Catalog
-    participant Review
-    participant SharedLib as ProfileService
+    participant Dev as Dev
+    participant MFERepo as MFE Repo (store/account/...)
+    participant GitHub as GitHub Actions (no MFE)
+    participant Reports as reports Repo (CI)
+    participant GHPages as GitHub Pages
 
-    User->>Store: Abre App (Host)
-    Store->>ProfileService: Lê nome do usuário
-    Store->>User: Mostra nome no header
-
-    User->>Store: Clica em "Account"
-    Store->>Account: Lazy load rota + AccountForm
-    Account->>ProfileService: Atualiza nome/email
-    ProfileService->>Store: Atualiza nome no header
-
-    User->>Store: Clica em "Catalog"
-    Store->>Catalog: Lazy load rota + BookList
-
-    User->>Catalog: Clica em um livro
-    Catalog->>Review: Carrega Dialog remoto
-    Review->>ProfileService: Lê usuário logado
-    Review->>User: Mostra review do livro, inclui nome do usuário
+    Dev->>MFERepo: Faz push na branch main
+    MFERepo->>GitHub: Trigger workflow (build+deploy)
+    GitHub->>GHPages: Publica build no gh-pages
+    GitHub->>Reports: Dispara workflow via repository_dispatch
+    Reports->>Reports: Atualiza reports (Smoke + Dependencies)
+    Reports->>GHPages: Publica relatório HTML do smoke test
+    Reports->>Reports: Atualiza DEPENDENCIES-REPORT.md
 ```
 
 ---
+
+### Fluxo automático do Reports
+
+#### O que acontece ao atualizar qualquer MFE:
+
+1. **Commit/push** em qualquer repositório de MFE (ex: `catalog`).
+2. O **GitHub Actions** do MFE:
+
+   * Builda e faz deploy no GitHub Pages do respectivo MFE.
+   * **Dispara um `repository_dispatch`** para o repositório `reports`.
+3. O repositório `reports`:
+
+   * Roda **Smoke Tests E2E** (testa host+remotes juntos).
+   * Atualiza e publica:
+
+     * **Smoke Test** (HTML report)
+     * **Dependencies Report** (validação das dependências)
+   * Publica o relatório HTML no GitHub Pages de `reports`.
+
+#### 🔍 Fluxo do Reports
+
+```mermaid
+flowchart TD
+    DevPush([Push em qualquer MFE])
+    ActionMFE([GitHub Action<br>no MFE])
+    RepoReports([Repo de reports])
+    SmokeTest([Rodar Smoke Test])
+    Dependencies([Gerar Dependencies Report])
+    Pages([Publicar em GH Pages])
+
+    DevPush --> ActionMFE
+    ActionMFE -->|repository_dispatch| RepoReports
+    RepoReports --> SmokeTest
+    RepoReports --> Dependencies
+    SmokeTest --> Pages
+    Dependencies --> RepoReports
+```
+
+---
+
+## Automação de Reports
+
+### Relatórios Gerados
+
+| Relatório                   | Local / Link                                                                                           | Descrição                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------- |
+| **Smoke Test (HTML)**       | [GH Pages - Reports](https://book-store-mfe.github.io/reports/)                                        | testes integrando todos MFEs |
+| **Dependencies (Markdown)** | [`DEPENDENCIES-REPORT.md`](https://github.com/book-store-mfe/reports/blob/main/DEPENDENCIES-REPORT.md) | Árvore e links entre MFEs  |
+
+### Fluxo automático de atualização de reports
+
+* **Disparo automático**: todo deploy de MFE dispara update dos reports.
+* **Relatórios publicados**: HTML navegável (GH Pages), Markdown de dependências.
+
+---
+
+## Guia de Desenvolvimento Local
 
 ## 🚀 Como clonar o repositório com todos os submodules
 
@@ -312,6 +256,8 @@ Repita para cada microfrontend que usava o link.
 
 ### 📑 Dicas
 
-* O `npm link` cria symlinks. Pode ter conflitos se dependências peer (ex: React, Angular) não forem iguais. Se tiver erros estranhos, limpe o `node_modules` e reinstale tudo.
+* O `npm link` cria symlinks. Pode ter conflitos se dependências peer (ex: Angular) não forem iguais. Se tiver erros estranhos, limpe o `node_modules` e reinstale tudo.
 * Lembre-se de sempre rodar o build da lib após alterar o código-fonte.
 * Esse fluxo é excelente para acelerar o desenvolvimento multi-repo sem precisar publicar releases no npm a cada alteração.
+
+---
